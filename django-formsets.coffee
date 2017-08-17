@@ -51,7 +51,6 @@ class @Formset
 
   setTotal: (total) =>
     $("#id_#{@form_prefix}-TOTAL_FORMS").val(total)
-    console.log total, $("#id_#{@form_prefix}-TOTAL_FORMS").val()
 
   rebuildGroups: =>
     reg = new RegExp("#{@form_prefix}-[\\d\\.]+-", 'g')
