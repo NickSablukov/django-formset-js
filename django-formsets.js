@@ -3,11 +3,13 @@
   var bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
   this.Formset = (function() {
-    function Formset(formset_id, form_prefix, empty_form_id) {
+    function Formset(formset_id, form_prefix1, empty_form_id) {
       this.formset_id = formset_id;
-      this.form_prefix = form_prefix;
+      this.form_prefix = form_prefix1;
       this.empty_form_id = empty_form_id;
+      this._rebuildItems = bind(this._rebuildItems, this);
       this.rebuildGroups = bind(this.rebuildGroups, this);
+      this.setTotal = bind(this.setTotal, this);
       this.getTotal = bind(this.getTotal, this);
       this.totalInc = bind(this.totalInc, this);
       this.totalDec = bind(this.totalDec, this);
@@ -76,19 +78,37 @@
     };
 
     Formset.prototype.setTotal = function(total) {
-      return $("#id_" + this.form_prefix + "-TOTAL_FORMS").val(total);
+      $("#id_" + this.form_prefix + "-TOTAL_FORMS").val(total);
+      return console.log(total, $("#id_" + this.form_prefix + "-TOTAL_FORMS").val());
     };
 
     Formset.prototype.rebuildGroups = function() {
-      var _rebuildItems, reg;
-      reg = RegExp("/" + this.form_prefix + "-[\d\.]+-/g");
-      _rebuildItems = (function(_this) {
-        return function(selector, index) {};
-      })(this);
-      selector.each(function() {
+      var reg;
+      reg = new RegExp(this.form_prefix + "-[\\d\\.]+-", 'g');
+      return $("#" + this.formset_id).find('.form').each((function(_this) {
+        return function(index, e) {
+          var elem, form_prefix;
+          elem = $(e);
+          _this._rebuildItems(elem.find('input'), index);
+          _this._rebuildItems(elem.find('select'), index);
+          form_prefix = _this.form_prefix;
+          return elem.find('label').each(function() {
+            var newFor;
+            newFor = $(this).attr('for').replace(reg, form_prefix + "-" + index + "-");
+            return $(this).attr('for', newFor);
+          });
+        };
+      })(this));
+    };
+
+    Formset.prototype._rebuildItems = function(selector, index) {
+      var form_prefix, reg;
+      reg = new RegExp(this.form_prefix + "-[\\d\\.]+-", 'g');
+      form_prefix = this.form_prefix;
+      return selector.each(function() {
         var id, name;
         if ($(this).attr('name')) {
-          name = $(this).attr('name').replace(reg, this.form_prefix + "-" + index + "-");
+          name = $(this).attr('name').replace(reg, form_prefix + "-" + index + "-");
           id = 'id_' + name;
           return $(this).attr({
             'name': name,
@@ -96,19 +116,6 @@
           });
         }
       });
-      return $('#formset').find('.form').each((function(_this) {
-        return function(index, e) {
-          var elem;
-          elem = $(e);
-          _rebuildItems(elem.find('input'), index);
-          _rebuildItems(elem.find('select'), index);
-          return elem.find('label').each(function() {
-            var newFor;
-            newFor = $(this).attr('for').replace(reg, this.form_prefix + "-" + index + "-");
-            return $(this).attr('for', newFor);
-          });
-        };
-      })(this));
     };
 
     return Formset;
