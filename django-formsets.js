@@ -78,8 +78,7 @@
     };
 
     Formset.prototype.setTotal = function(total) {
-      $("#id_" + this.form_prefix + "-TOTAL_FORMS").val(total);
-      return console.log(total, $("#id_" + this.form_prefix + "-TOTAL_FORMS").val());
+      return $("#id_" + this.form_prefix + "-TOTAL_FORMS").val(total);
     };
 
     Formset.prototype.rebuildGroups = function() {
