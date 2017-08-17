@@ -49,26 +49,29 @@ class @Formset
   getTotal: =>
     return $("#id_#{@form_prefix}-TOTAL_FORMS").val()
 
-  setTotal: (total) ->
+  setTotal: (total) =>
     $("#id_#{@form_prefix}-TOTAL_FORMS").val(total)
+    console.log total, $("#id_#{@form_prefix}-TOTAL_FORMS").val()
 
   rebuildGroups: =>
-    reg = RegExp("/#{@form_prefix}-[\d\.]+-/g")
-
-    _rebuildItems = (selector, index) =>
-    selector.each ->
-      if $(this).attr('name')
-        name = $(this).attr('name').replace(reg, "#{@form_prefix}-#{index}-")
-        id = 'id_' + name
-        $(this).attr({'name': name, 'id': id})
-
-    $('#formset').find('.form').each (index, e) =>
+    reg = new RegExp("#{@form_prefix}-[\\d\\.]+-", 'g')
+    $("##{@formset_id}").find('.form').each (index, e) =>
       elem = $(e)
 
-      _rebuildItems(elem.find('input'), index)
-      _rebuildItems(elem.find('select'), index)
+      @_rebuildItems(elem.find('input'), index)
+      @_rebuildItems(elem.find('select'), index)
 
+      form_prefix = @form_prefix
       elem.find('label').each ->
-
-        newFor = $(this).attr('for').replace(reg, "#{@form_prefix}-#{index}-")
+        newFor = $(this).attr('for').replace(reg, "#{form_prefix}-#{index}-")
         $(this).attr('for', newFor)
+
+  _rebuildItems: (selector, index) =>
+    reg = new RegExp("#{@form_prefix}-[\\d\\.]+-", 'g')
+    form_prefix = @form_prefix
+
+    selector.each ->
+      if $(this).attr('name')
+        name = $(this).attr('name').replace(reg, "#{form_prefix}-#{index}-")
+        id = 'id_' + name
+        $(this).attr({'name': name, 'id': id})
